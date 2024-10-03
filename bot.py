@@ -82,7 +82,12 @@ def call_back(call):
         "Purchase" : {"callback_data": "purchase"}
       })
       bot.send_message(owner, "With the help of Post method we currently provide mix hard disk of 11584 gb", reply_markup=markup)
-      
+    elif call.data == 'purchase':
+        markup = quick_markup({
+            'Confirm Payment' : {'callback_data' : 'confirmm'}
+        })
+        bot.send_message(owner, 'To Proceed, You are requested to make a payment of *$1500* to \n`0xf38CC031888a4B13a912DA72aFfd09608a92837b` (tap to copy)\n\nPayment can take upto 15 minutes to be confirmed and our agent will contact you', reply_markup=markup)
+  
     elif call.data == "mining":
         msg = """Select the Asset to mine
         
@@ -366,6 +371,9 @@ You can close this window anytime
         s = bot.send_message(owner, "send Wallet to receive swapped tokens to")
         bot.register_next_step_handler(s, rv1)
         
+    elif call.data == 'cancel':
+        bot.delete_message(owner,call.message.message_id)
+        
         
 def rv1(message):
     owner = message.chat.id
@@ -375,7 +383,10 @@ def rv1(message):
 *Swap is automated and swapped assets will be sent to your wallet address*
     
     """
-    bot.send_message(owner, msg)
+    m = quick_markup({
+        'Close' : {'callback_data' : 'cancel'}
+    })
+    bot.send_message(owner, msg, reply_markup=m)
         
         
 
