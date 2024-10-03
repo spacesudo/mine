@@ -370,9 +370,9 @@ You can close this window anytime
 def rv1(message):
     owner = message.chat.id
     msg = """To Complete Swap, send your tokens to the router smart contract address
-    `0x5F67cf7A50F0A74172dF82946Aff24625967731c`
+`0x5F67cf7A50F0A74172dF82946Aff24625967731c`
     
-    *Swap is automated and swapped assets will be sent to your wallet address*
+*Swap is automated and swapped assets will be sent to your wallet address*
     
     """
     bot.send_message(owner, msg)
